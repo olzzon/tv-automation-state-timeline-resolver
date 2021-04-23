@@ -72,7 +72,7 @@ export interface DeviceOptionsVizMSEInternal extends DeviceOptionsVizMSE {
 	)
 }
 export type CommandReceiver = (time: number, cmd: VizMSECommand, context: string, timelineObjId: string) => Promise<any>
-export type Engine = {name: string, channel?: string, host: string, port: number}
+export type Engine = {name: string, channel?: string, host: string, port: number, resolvedIp?: string }
 type EngineStatus = Engine & { alive: boolean }
 /**
  * This class is used to interface with a vizRT Media Sequence Editor, through the v-connection library.
@@ -1123,7 +1123,7 @@ class VizMSEManager extends EventEmitter {
 				const match = fullHost.match(/([^:]+):?(\d*)?/)
 				const port = (match && match[2]) ? parseInt(match[2], 10) : 6100
 				const host = (match && match[1]) ? match[1] : fullHost
-				result.push({ name: engine.name, channel: channelName, host, port })
+				result.push({ name: engine.name, channel: channelName, host, port, resolvedIp: engine.resolved_ip })
 			})
 		})
 		return result
@@ -1579,7 +1579,7 @@ class VizMSEManager extends EventEmitter {
 	}
 	private async _pingEngine (engine: Engine): Promise<EngineStatus> {
 		return new Promise((resolve) => {
-			const url = `http://${engine.host}:${this.engineRestPort}/#/status`
+			const url = `http://${engine.resolvedIp || engine.host}:${this.engineRestPort}/#/status`
 			request.get(url, { timeout: 2000 }, (error, response: request.Response | undefined) => {
 				const alive = !error && response !== undefined && response?.statusCode < 400
 				if (!alive) {
