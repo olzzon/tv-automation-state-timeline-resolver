@@ -923,7 +923,7 @@ class VizMSEManager extends events_1.EventEmitter {
                 const match = fullHost.match(/([^:]+):?(\d*)?/);
                 const port = (match && match[2]) ? parseInt(match[2], 10) : 6100;
                 const host = (match && match[1]) ? match[1] : fullHost;
-                result.push({ name: engine.name, channel: channelName, host, port });
+                result.push({ name: engine.name, channel: channelName, host, port, resolvedIp: engine.resolved_ip });
             });
         });
         return result;
@@ -1340,7 +1340,7 @@ class VizMSEManager extends events_1.EventEmitter {
     }
     async _pingEngine(engine) {
         return new Promise((resolve) => {
-            const url = `http://${engine.host}:${this.engineRestPort}/#/status`;
+            const url = `http://${engine.resolvedIp || engine.host}:${this.engineRestPort}/#/status`;
             request.get(url, { timeout: 2000 }, (error, response) => {
                 const alive = !error && response !== undefined && (response === null || response === void 0 ? void 0 : response.statusCode) < 400;
                 if (!alive) {

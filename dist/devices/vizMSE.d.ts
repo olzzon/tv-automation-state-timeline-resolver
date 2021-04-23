@@ -13,6 +13,7 @@ export declare type Engine = {
     channel?: string;
     host: string;
     port: number;
+    resolvedIp?: string;
 };
 /**
  * This class is used to interface with a vizRT Media Sequence Editor, through the v-connection library.
